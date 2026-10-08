@@ -6,14 +6,25 @@ import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 export default function CertificateCard({ certificate, onSelect, index = 0 }) {
   const shouldReduceMotion = useReducedMotion();
 
+  // Subtle rotation: starts at -4deg (or alternating -4deg / +3deg) and settles to 0deg
+  const initialRotate = index % 2 === 0 ? -4 : 3;
+
   return (
     <motion.div
-      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
-      whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.65, delay: index * 0.1, ease: PREMIUM_EASE }}
-      whileHover={shouldReduceMotion ? {} : { y: -6 }}
-      className="group relative rounded-3xl bg-[#0b0f19] border border-white/10 hover:border-blue-500/40 p-5 flex flex-col justify-between transition-all duration-300 shadow-xl hover:shadow-[0_12px_35px_-10px_rgba(59,130,246,0.22)]"
+      initial={
+        shouldReduceMotion
+          ? { opacity: 0 }
+          : { opacity: 0, scale: 0.95, rotateZ: initialRotate }
+      }
+      whileInView={
+        shouldReduceMotion
+          ? { opacity: 1 }
+          : { opacity: 1, scale: 1, rotateZ: 0 }
+      }
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.75, delay: index * 0.1, ease: PREMIUM_EASE }}
+      whileHover={shouldReduceMotion ? {} : { y: -6, scale: 1.02 }}
+      className="group relative rounded-3xl bg-[#0b0f19] border border-white/10 hover:border-blue-500/40 p-5 flex flex-col justify-between transition-all duration-300 shadow-xl hover:shadow-[0_15px_35px_-10px_rgba(59,130,246,0.22)]"
     >
       <div>
         {/* Certificate Image Frame */}
@@ -58,30 +69,34 @@ export default function CertificateCard({ certificate, onSelect, index = 0 }) {
             {certificate.title}
           </h3>
 
-          {certificate.date && (
-            <p className="text-[11px] text-slate-400 font-mono flex items-center gap-1 pt-1">
-              <Calendar className="w-3 h-3 text-slate-500" />
-              <span>{certificate.date}</span>
-            </p>
-          )}
+          <div className="flex items-center gap-1.5 text-slate-500 text-xs font-mono pt-1">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{certificate.date}</span>
+          </div>
         </div>
       </div>
 
-      {/* Card Action footer */}
-      <div className="pt-4 mt-4 border-t border-white/[0.06] flex items-center justify-between">
+      {/* Footer Actions */}
+      <div className="mt-5 pt-3.5 border-t border-white/[0.06] flex items-center justify-between">
         <button
           onClick={() => onSelect(certificate)}
-          className="text-xs font-medium text-slate-300 group-hover:text-blue-400 flex items-center gap-1 transition-colors"
+          className="text-xs font-medium text-slate-300 hover:text-blue-400 flex items-center gap-1 transition-colors"
         >
-          <span>View Certificate</span>
+          <span>View Details</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
         </button>
 
         {certificate.pdfUrl && (
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
-            <FileText className="w-3 h-3" />
-            PDF
-          </span>
+          <a
+            href={certificate.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`View ${certificate.title} official PDF (opens in a new tab)`}
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            title="Download / View PDF"
+          >
+            <FileText className="w-4 h-4" />
+          </a>
         )}
       </div>
     </motion.div>

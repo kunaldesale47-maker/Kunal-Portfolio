@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
-import { ArrowDown, FileText, Github, Linkedin, Mail, Sparkles, Terminal, ChevronRight } from 'lucide-react';
+import { FileText, Github, Linkedin, Mail, Sparkles, Terminal, ChevronRight } from 'lucide-react';
 import { personalInfo } from '../data/portfolioData';
 import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 
@@ -9,14 +9,25 @@ export default function Hero() {
   const containerRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
 
-  // Subtle parallax effect on scroll
+  // Scroll tracking across Hero section
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end start'],
   });
 
-  const yBg = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? ['0%', '0%'] : ['0%', '25%']);
-  const yGlow = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? ['0%', '0%'] : ['0%', '-15%']);
+  // During scrolling transformations:
+  // 1. Hero text translates upward: 0 -> -80px
+  const textY = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, -80]);
+
+  // 2. Hero profile image scales down: 1 -> 0.88
+  const imageScale = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? [1, 1] : [1, 0.88]);
+
+  // 3. Background slow parallax movement
+  const bgY = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? ['0%', '0%'] : ['0%', '20%']);
+  const glowY = useTransform(scrollYProgress, [0, 1], shouldReduceMotion ? ['0%', '0%'] : ['0%', '-15%']);
+
+  // 4. Hero gradually fades away as the next section enters: 1 -> 0
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
 
   return (
     <section
@@ -24,10 +35,10 @@ export default function Hero() {
       id="hero"
       className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
-      {/* Background Video with subtle parallax and heavy contrast overlay */}
+      {/* Background Video with slow parallax and contrast overlay */}
       {!videoError && (
         <motion.div
-          style={{ y: yBg }}
+          style={{ y: bgY }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2 }}
@@ -49,18 +60,25 @@ export default function Hero() {
 
       {/* Decorative ambient glow with parallax */}
       <motion.div
-        style={{ y: yGlow }}
+        style={{ y: glowY }}
         className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-blue-600/15 via-purple-600/10 to-sky-400/10 blur-[130px] rounded-full pointer-events-none -z-10"
       />
 
       {/* Grid Pattern overlay */}
       <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none z-0" />
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full">
+      {/* Content wrapper: fades away on scroll */}
+      <motion.div
+        style={{ opacity: heroOpacity }}
+        className="relative z-10 max-w-7xl mx-auto w-full"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
-          {/* Left Text Column */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+          {/* Left Text Column: scroll translateY(0 -> -80px) */}
+          <motion.div
+            style={{ y: textY }}
+            className="lg:col-span-7 space-y-6 text-center lg:text-left"
+          >
             {/* Status / Role Tag */}
             <motion.div
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 15 }}
@@ -68,14 +86,14 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.1, ease: PREMIUM_EASE }}
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-[11px] sm:text-xs font-mono tracking-wide"
             >
-              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
               <span>Computer Engineering Student • SPPU</span>
             </motion.div>
 
-            {/* Main Headings */}
+            {/* Main Heading: Initial translateY(50px) -> 0, opacity 0 -> 1 */}
             <div className="space-y-2">
               <motion.h1
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 50 }}
                 animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.75, delay: 0.2, ease: PREMIUM_EASE }}
                 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight font-display text-white"
@@ -87,8 +105,9 @@ export default function Hero() {
                 <span className="text-blue-500">.</span>
               </motion.h1>
 
+              {/* Subtitle: Initial translateY(30px) -> 0, opacity 0 -> 1 */}
               <motion.h2
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
                 animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.32, ease: PREMIUM_EASE }}
                 className="text-lg sm:text-2xl md:text-3xl font-semibold text-slate-300 font-display flex items-center justify-center lg:justify-start gap-2"
@@ -97,7 +116,7 @@ export default function Hero() {
               </motion.h2>
             </div>
 
-            {/* Supporting Text & Honest Positioning */}
+            {/* Supporting Text & Positioning */}
             <motion.div
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
               animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
@@ -123,9 +142,9 @@ export default function Hero() {
               <span>&ldquo;{personalInfo.tagline}&rdquo;</span>
             </motion.div>
 
-            {/* Primary Action Buttons */}
+            {/* Buttons: Initial translateY(20px) -> 0 */}
             <motion.div
-              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 15 }}
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
               animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.58, ease: PREMIUM_EASE }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2"
@@ -149,7 +168,7 @@ export default function Hero() {
               </a>
             </motion.div>
 
-            {/* Social Icons Bar (fade + slight upward movement, staggered) */}
+            {/* Social Icons Bar */}
             <motion.div
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
               animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
@@ -188,11 +207,14 @@ export default function Hero() {
                 <Mail className="w-4 h-4" />
               </a>
             </motion.div>
-          </div>
+          </motion.div>
 
-          {/* Right Column: Hero Visual Frame (scale 0.95 -> 1, opacity 0 -> 1) */}
+          {/* Right Column: Hero Visual Frame
+              Load: scale 1.08 -> 1, opacity 0 -> 1
+              Scroll: scale 1 -> 0.88 */}
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
+            style={{ scale: imageScale }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 1.08 }}
             animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
             transition={{ duration: 0.85, delay: 0.25, ease: PREMIUM_EASE }}
             className="lg:col-span-5 flex justify-center lg:justify-end"
@@ -256,7 +278,7 @@ export default function Hero() {
           </a>
         </motion.div>
 
-      </div>
+      </motion.div>
     </section>
   );
 }

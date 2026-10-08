@@ -31,29 +31,6 @@ function AnimatedStat({ value, label, helper, isNumeric, numValue, decimals = 0,
   );
 }
 
-const highlights = [
-  {
-    icon: Code2,
-    title: "Programming Fundamentals",
-    desc: "Writing structured, logic-driven code in C, C++, and Python with an emphasis on OOP and computational clarity."
-  },
-  {
-    icon: Globe,
-    title: "Web Development",
-    desc: "Building responsive frontend experiences with React.js, Tailwind CSS, and exploring Node.js APIs."
-  },
-  {
-    icon: Cpu,
-    title: "Scientific Simulations",
-    desc: "Bridging physics concepts and computer graphics by designing interactive optical and wave simulations."
-  },
-  {
-    icon: Users,
-    title: "Teamwork & Hackathons",
-    desc: "Collaborating with fellow student engineers to brainstorm and prototype solutions for Smart India Hackathon."
-  }
-];
-
 export default function About() {
   const shouldReduceMotion = useReducedMotion();
 
@@ -66,21 +43,22 @@ export default function About() {
           subtitle="Honest, curious, and dedicated to learning through hands-on engineering."
         />
 
+        {/* Split Layout: LEFT Portrait, RIGHT Text */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
-          {/* Left Column: Visual Portrait Card (slide from left + fade) */}
+          {/* LEFT: Portrait (translateX(-100px) -> 0, opacity 0 -> 1) */}
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -35 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -100 }}
             whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 'some' }}
-            transition={{ duration: 0.7, ease: PREMIUM_EASE }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.85, ease: PREMIUM_EASE }}
             className="lg:col-span-5"
           >
             <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#101726] to-[#07090e] p-3 shadow-2xl group">
               <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-slate-950">
                 <img
                   src={personalInfo.portrait}
-                  alt="Kunal Desale at Work"
+                  alt="Kunal Desale - Computer Engineering Student"
                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#07090e]/90 via-transparent to-transparent opacity-60" />
@@ -97,12 +75,12 @@ export default function About() {
             </div>
           </motion.div>
 
-          {/* Right Column: Text & Narrative (slide from right + fade) */}
+          {/* RIGHT: Text (translateX(100px) -> 0, opacity 0 -> 1) */}
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 35 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 100 }}
             whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 'some' }}
-            transition={{ duration: 0.7, delay: 0.1, ease: PREMIUM_EASE }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.85, delay: 0.1, ease: PREMIUM_EASE }}
             className="lg:col-span-7 space-y-6"
           >
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#0e1424] to-[#07090e] border border-white/10 shadow-xl space-y-4">
@@ -110,13 +88,13 @@ export default function About() {
                 I'm a Computer Engineering student passionate about technology, problem solving, and building practical projects.
               </h3>
 
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Currently pursuing my Bachelor of Engineering in Computer Engineering at{' '}
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                Currently pursuing my Bachelor of Technology in Computer Engineering at{' '}
                 <span className="text-blue-300 font-medium">PES Modern College of Engineering, Pune</span> (affiliated with Savitribai Phule Pune University). 
                 I believe genuine engineering growth comes from active experimentation, tackling challenging concepts, and turning code into working digital solutions.
               </p>
 
-              <p className="text-slate-400 text-sm leading-relaxed">
+              <p className="text-slate-400 text-sm leading-relaxed font-light">
                 From developing an artisan management portal for traditional Ganpati sculptors during our college community engagement project, 
                 to architecting farm-to-market solutions for the Smart India Hackathon and designing interactive optics simulations in physics, 
                 I enjoy learning through direct implementation.
@@ -142,70 +120,77 @@ export default function About() {
           </motion.div>
         </div>
 
-        {/* Verified Stats Cards with Count-Up Animation (opacity 0 -> 1, translateY 30px -> 0, staggered) */}
-        <motion.div
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 25 }}
-          whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 'some' }}
-          transition={{ duration: 0.65, delay: 0.15, ease: PREMIUM_EASE }}
-          className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4"
-        >
-          <AnimatedStat
-            value="9.11"
-            numValue={9.11}
-            isNumeric={true}
-            decimals={2}
-            label="9.11 CGPA"
-            helper="First-Year Academic Record"
-          />
-          <AnimatedStat
-            value="PES MCOE"
-            isNumeric={false}
-            label="Computer Engineering"
-            helper="SPPU Affiliated Department"
-          />
-          <AnimatedStat
-            value="4+"
-            numValue={4}
-            isNumeric={true}
-            suffix="+"
-            label="Projects Built"
-            helper="Full-Stack & Simulations"
-          />
-          <AnimatedStat
-            value="Active"
-            isNumeric={false}
-            label="Technology Explorer"
-            helper="Continuous Hands-On Learning"
-          />
-        </motion.div>
+        {/* Statistics: Multi-directional Entrances */}
+        {/* Card 1: translateY(60px)
+            Card 2: translateX(50px)
+            Card 3: scale(0.8) -> 1
+            Card 4: translateY(-40px) */}
+        <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: translateY(60px) */}
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 60 }}
+            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.05, ease: PREMIUM_EASE }}
+          >
+            <AnimatedStat
+              value="9.11"
+              numValue={9.11}
+              isNumeric={true}
+              decimals={2}
+              label="9.11 CGPA"
+              helper="First-Year Academic Record"
+            />
+          </motion.div>
 
-        {/* Highlight Focus Cards (Staggered) */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {highlights.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={item.title}
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
-                whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 'some' }}
-                transition={{ duration: 0.55, delay: idx * 0.08, ease: PREMIUM_EASE }}
-                className="p-5 rounded-2xl bg-[#090d16] border border-white/5 hover:border-blue-500/25 transition-all group"
-              >
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Icon className="w-4 h-4" />
-                </div>
-                <h4 className="text-sm font-bold font-display text-white mb-1.5">
-                  {item.title}
-                </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {item.desc}
-                </p>
-              </motion.div>
-            );
-          })}
+          {/* Card 2: translateX(50px) */}
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 50 }}
+            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.15, ease: PREMIUM_EASE }}
+          >
+            <AnimatedStat
+              value="PES MCOE"
+              isNumeric={false}
+              label="Computer Engineering"
+              helper="SPPU Affiliated Department"
+            />
+          </motion.div>
+
+          {/* Card 3: scale(0.8) -> scale(1) */}
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
+            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.25, ease: PREMIUM_EASE }}
+          >
+            <AnimatedStat
+              value="8+"
+              numValue={8}
+              isNumeric={true}
+              suffix="+"
+              label="Projects Built"
+              helper="Full-Stack, Simulations & Tools"
+            />
+          </motion.div>
+
+          {/* Card 4: translateY(-40px) */}
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -40 }}
+            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.35, ease: PREMIUM_EASE }}
+          >
+            <AnimatedStat
+              value="Active"
+              isNumeric={false}
+              label="Technology Explorer"
+              helper="Continuous Hands-On Learning"
+            />
+          </motion.div>
         </div>
+
       </div>
     </section>
   );
