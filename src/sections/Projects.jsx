@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import {
   Github,
   ExternalLink,
@@ -15,33 +15,43 @@ import {
 import SectionHeading from '../components/SectionHeading';
 import ProjectCard from '../components/ProjectCard';
 import ProjectModal from '../components/ProjectModal';
+import MagneticButton from '../components/animations/MagneticButton';
 import { projectsData, githubReposData } from '../data/projectsData';
 import { PREMIUM_EASE, CINEMATIC_EASE } from '../hooks/useScrollAnimations';
 
 /**
- * Editorial alternating case-study card for Featured Projects
- * Layouts:
- * PROJECT 01 & 03: Text on LEFT, Image on RIGHT
- * PROJECT 02 & 04: Image on LEFT, Text on RIGHT
+ * Cinematic Alternating Case-Study Project Scene
+ * Layout specification:
+ * PROJECT 1 (index 0): Image LEFT, Text RIGHT
+ * PROJECT 2 (index 1): Text LEFT, Image RIGHT
+ * PROJECT 3 (index 2): Image LEFT, Text RIGHT
+ * PROJECT 4 (index 3): Text LEFT, Image RIGHT
  */
-function CinematicProjectItem({ project, index, onSelect }) {
+function CinematicProjectScene({ project, index, onSelect }) {
   const containerRef = useRef(null);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
-  // Scroll tracking per project block
+  // Scroll tracking per project scene
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start end', 'end start'],
   });
 
-  // Parallax subtle vertical movement: -40px
+  // Number vertical scroll movement
+  const numberY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : [-30, 30]
+  );
+
+  // Image Parallax movement: -40px
   const imageYParallax = useTransform(
     scrollYProgress,
     [0, 1],
-    shouldReduceMotion ? [0, 0] : [20, -40]
+    shouldReduceMotion ? [0, 0] : [25, -35]
   );
 
-  // Transition when leaving project: scale 1 -> 0.95, opacity 1 -> 0.4
+  // Transition when leaving project
   const exitScale = useTransform(
     scrollYProgress,
     [0.75, 1],
@@ -50,158 +60,66 @@ function CinematicProjectItem({ project, index, onSelect }) {
   const exitOpacity = useTransform(
     scrollYProgress,
     [0.8, 1],
-    shouldReduceMotion ? [1, 1] : [1, 0.5]
+    shouldReduceMotion ? [1, 1] : [1, 0.45]
   );
 
-  // PROJECT 01 & 03: Text Left, Image Right
-  // PROJECT 02 & 04: Image Left, Text Right
-  const isImageRight = index % 2 === 0;
+  // Alternating Layout:
+  // index 0 & 2: Image LEFT, Text RIGHT
+  // index 1 & 3: Text LEFT, Image RIGHT
+  const isImageLeft = index % 2 === 0;
+
+  const projectNumberFormatted = String(index + 1).padStart(2, '0');
 
   return (
     <motion.div
       ref={containerRef}
       style={{ scale: exitScale, opacity: exitOpacity }}
-      className="relative rounded-3xl bg-[#0b0f19]/90 border border-white/10 hover:border-blue-500/30 p-6 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-sm transition-colors duration-500"
+      className="relative rounded-3xl bg-[#0b0f19]/90 border border-white/10 hover:border-blue-500/30 p-6 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-sm transition-colors duration-500 overflow-hidden"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      {/* Separate Animated Project Number in Background with Parallax */}
+      <motion.div
+        style={{ y: numberY }}
+        className={`absolute top-4 ${
+          isImageLeft ? 'right-6' : 'left-6'
+        } text-7xl sm:text-9xl font-black font-mono text-white/[0.03] select-none pointer-events-none z-0`}
+      >
+        {projectNumberFormatted}
+      </motion.div>
+
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
-        {/* TEXT COLUMN */}
+        {/* IMAGE COLUMN:
+            - start scale 1.15 -> 1
+            - slight Y parallax
+            - opacity 0.6 -> 1
+            - clip-path reveal */}
         <div
-          className={`lg:col-span-6 space-y-6 ${
-            isImageRight ? 'order-1 lg:order-1' : 'order-1 lg:order-2'
-          }`}
-        >
-          {/* Project Number & Category Pill */}
-          <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
-            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6, ease: PREMIUM_EASE }}
-            className="flex items-center gap-3"
-          >
-            <span className="text-xs font-mono font-bold tracking-widest text-blue-400">
-              PROJECT {String(index + 1).padStart(2, '0')}
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-            <span className="px-3 py-1 rounded-full text-xs font-mono font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
-              {project.category}
-            </span>
-            {project.liveUrl && (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live
-              </span>
-            )}
-          </motion.div>
-
-          {/* Project Title: translateY(60px) -> 0 */}
-          <motion.h3
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 60 }}
-            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: PREMIUM_EASE }}
-            onClick={() => onSelect(project)}
-            className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-display text-white hover:text-blue-400 transition-colors cursor-pointer"
-          >
-            {project.title}
-          </motion.h3>
-
-          {/* Description: translateY(40px) -> 0 */}
-          <motion.p
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 40 }}
-            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: PREMIUM_EASE }}
-            className="text-slate-300 text-sm sm:text-base leading-relaxed font-light"
-          >
-            {project.description || project.overview}
-          </motion.p>
-
-          {/* Technology tags: opacity 0 -> 1, stagger */}
-          <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
-            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6, delay: 0.3, ease: PREMIUM_EASE }}
-            className="flex flex-wrap gap-2 pt-1"
-          >
-            {project.technologies.map((tech) => (
-              <span
-                key={tech}
-                className="px-3 py-1 rounded-lg text-xs font-mono font-medium bg-white/[0.04] text-slate-300 border border-white/5"
-              >
-                {tech}
-              </span>
-            ))}
-          </motion.div>
-
-          {/* Buttons: translateY(20px) -> 0 */}
-          <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
-            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.65, delay: 0.4, ease: PREMIUM_EASE }}
-            className="pt-2 flex flex-wrap items-center gap-3"
-          >
-            {/* VIEW DETAILS */}
-            <button
-              onClick={() => onSelect(project)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 transition-all group/btn"
-            >
-              <span>VIEW DETAILS</span>
-              <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-            </button>
-
-            {/* SOURCE CODE */}
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`View ${project.title} source code on GitHub (opens in a new tab)`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-200 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all"
-              >
-                <Github className="w-4 h-4 text-slate-400 group-hover:text-white" />
-                <span>SOURCE CODE</span>
-              </a>
-            )}
-
-            {/* LIVE DEMO */}
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open ${project.title} live demo (opens in a new tab)`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-sky-400 shadow-[0_0_20px_rgba(59,130,246,0.35)] transition-all"
-              >
-                <span>LIVE DEMO</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-          </motion.div>
-        </div>
-
-        {/* IMAGE COLUMN: scale 1.15 -> 1, opacity 0 -> 1, translateY 60px -> 0 + parallax */}
-        <motion.div
-          style={{ y: imageYParallax }}
           className={`lg:col-span-6 ${
-            isImageRight ? 'order-2 lg:order-2' : 'order-2 lg:order-1'
+            isImageLeft ? 'order-1 lg:order-1' : 'order-1 lg:order-2'
           }`}
         >
           <motion.div
+            style={{ y: imageYParallax }}
             initial={
               shouldReduceMotion
                 ? { opacity: 0 }
-                : { opacity: 0, scale: 1.15, y: 60 }
+                : {
+                    scale: 1.15,
+                    opacity: 0.6,
+                    clipPath: 'inset(12% 0 12% 0)',
+                  }
             }
             whileInView={
               shouldReduceMotion
                 ? { opacity: 1 }
-                : { opacity: 1, scale: 1, y: 0 }
+                : {
+                    scale: 1,
+                    opacity: 1,
+                    clipPath: 'inset(0% 0 0% 0)',
+                  }
             }
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.85, ease: CINEMATIC_EASE }}
+            transition={{ duration: 0.9, ease: CINEMATIC_EASE }}
             onClick={() => onSelect(project)}
             className="group relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 hover:border-blue-500/50 shadow-2xl cursor-pointer"
           >
@@ -223,6 +141,121 @@ function CinematicProjectItem({ project, index, onSelect }) {
               </div>
             </div>
           </motion.div>
+        </div>
+
+        {/* TEXT COLUMN:
+            - slide from opposite direction
+            - blur -> sharp
+            - opacity 0 -> 1 */}
+        <motion.div
+          initial={
+            shouldReduceMotion
+              ? { opacity: 0 }
+              : {
+                  x: isImageLeft ? 70 : -70,
+                  opacity: 0,
+                  filter: 'blur(8px)',
+                }
+          }
+          whileInView={
+            shouldReduceMotion
+              ? { opacity: 1 }
+              : {
+                  x: 0,
+                  opacity: 1,
+                  filter: 'blur(0px)',
+                }
+          }
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.15, ease: PREMIUM_EASE }}
+          className={`lg:col-span-6 space-y-6 ${
+            isImageLeft ? 'order-2 lg:order-2' : 'order-2 lg:order-1'
+          }`}
+        >
+          {/* Project Header Pills */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono font-bold tracking-widest text-blue-400">
+              PROJECT {projectNumberFormatted}
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+            <span className="px-3 py-1 rounded-full text-xs font-mono font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
+              {project.category}
+            </span>
+            {project.liveUrl && (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Deployed
+              </span>
+            )}
+          </div>
+
+          {/* Title */}
+          <h3
+            onClick={() => onSelect(project)}
+            className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-display text-white hover:text-blue-400 transition-colors cursor-pointer"
+          >
+            {project.title}
+          </h3>
+
+          {/* Description */}
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+            {project.description || project.overview}
+          </p>
+
+          {/* Technology Tags: Staggered entrance */}
+          <div className="flex flex-wrap gap-2 pt-1">
+            {project.technologies.map((tech) => (
+              <span
+                key={tech}
+                className="px-3 py-1 rounded-lg text-xs font-mono font-medium bg-white/[0.04] text-slate-300 border border-white/5"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+
+          {/* Action Buttons with Magnetic hover */}
+          <div className="pt-2 flex flex-wrap items-center gap-3">
+            <MagneticButton strength={0.25}>
+              <button
+                onClick={() => onSelect(project)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 transition-all group/btn"
+              >
+                <span>VIEW DETAILS</span>
+                <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+              </button>
+            </MagneticButton>
+
+            {project.githubUrl && (
+              <MagneticButton strength={0.25}>
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`View ${project.title} source code on GitHub (opens in a new tab)`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-200 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all"
+                >
+                  <Github className="w-4 h-4 text-slate-400 group-hover:text-white" />
+                  <span>SOURCE CODE</span>
+                </a>
+              </MagneticButton>
+            )}
+
+            {project.liveUrl && (
+              <MagneticButton strength={0.25}>
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Open ${project.title} live demo (opens in a new tab)`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-sky-400 shadow-[0_0_20px_rgba(59,130,246,0.35)] transition-all"
+                >
+                  <span>LIVE DEMO</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </MagneticButton>
+            )}
+          </div>
         </motion.div>
 
       </div>
@@ -233,11 +266,10 @@ function CinematicProjectItem({ project, index, onSelect }) {
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [activeFilter, setActiveFilter] = useState('ALL');
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   const filterOptions = ['ALL', 'WEB', 'FULL STACK', 'SIMULATION', 'VISUALIZATION', 'EXPERIMENTS'];
 
-  // Filter projects based on categories
   const filteredProjects = projectsData.filter((p) => {
     if (activeFilter === 'ALL') return true;
     return p.categories && p.categories.includes(activeFilter);
@@ -248,7 +280,7 @@ export default function Projects() {
 
   return (
     <section id="projects" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Ambient background glows */}
+      {/* Background ambient lighting */}
       <div className="absolute top-1/4 -left-48 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -262,7 +294,7 @@ export default function Projects() {
         />
 
         {/* ======================================================== */}
-        {/* FEATURED PROJECTS: Alternating Editorial Showcase         */}
+        {/* FEATURED PROJECTS: Alternating Cinematic Scenes           */}
         {/* ======================================================== */}
         <div className="space-y-16 sm:space-y-24 mb-24">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -273,13 +305,13 @@ export default function Projects() {
               </h3>
             </div>
             <span className="text-xs font-mono text-slate-500">
-              4 Case Studies
+              4 Selected Case Studies
             </span>
           </div>
 
           <div className="space-y-16 sm:space-y-24">
             {featuredProjects.map((project, index) => (
-              <CinematicProjectItem
+              <CinematicProjectScene
                 key={project.id}
                 project={project}
                 index={index}
@@ -329,7 +361,7 @@ export default function Projects() {
             })}
           </div>
 
-          {/* Grid of Projects (Shows Other Projects when ALL, or Filtered Results) */}
+          {/* Grid of Projects */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {(activeFilter === 'ALL' ? otherProjects : filteredProjects).map((project, index) => (
               <ProjectCard
@@ -419,17 +451,19 @@ export default function Projects() {
 
           {/* GitHub Profile Callout */}
           <div className="mt-10 flex justify-center">
-            <a
-              href="https://github.com/kunaldesale47-maker"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Visit Kunal Desale GitHub profile (opens in a new tab)"
-              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] text-slate-200 hover:text-white border border-white/10 hover:border-blue-500/30 text-xs sm:text-sm font-mono tracking-wide transition-all group"
-            >
-              <Github className="w-4 h-4 text-blue-400" />
-              <span>github.com/kunaldesale47-maker</span>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-            </a>
+            <MagneticButton strength={0.3}>
+              <a
+                href="https://github.com/kunaldesale47-maker"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Kunal Desale GitHub profile (opens in a new tab)"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] text-slate-200 hover:text-white border border-white/10 hover:border-blue-500/30 text-xs sm:text-sm font-mono tracking-wide transition-all group"
+              >
+                <Github className="w-4 h-4 text-blue-400" />
+                <span>github.com/kunaldesale47-maker</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
+              </a>
+            </MagneticButton>
           </div>
         </motion.div>
 

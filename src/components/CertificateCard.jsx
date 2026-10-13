@@ -4,7 +4,7 @@ import { Award, Calendar, FileText, ArrowUpRight, Eye } from 'lucide-react';
 import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 
 export default function CertificateCard({ certificate, onSelect, index = 0 }) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   // Subtle rotation: starts at -4deg (or alternating -4deg / +3deg) and settles to 0deg
   const initialRotate = index % 2 === 0 ? -4 : 3;

@@ -26,7 +26,7 @@ export default function App() {
   const [introFinished, setIntroFinished] = useState(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search);
-      return !!sessionStorage.getItem('kunal_intro_viewed') || p.get('skipIntro') === 'true' || !!p.get('view') || !!window.location.hash;
+      return p.get('skipIntro') === 'true' || !!p.get('view') || !!window.location.hash;
     }
     return false;
   });

@@ -49,7 +49,7 @@ const journeyMilestones = [
 
 export default function LearningJourney() {
   const containerRef = useRef(null);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   // Scroll tracking to fill timeline spine gradually
   const { scrollYProgress } = useScroll({

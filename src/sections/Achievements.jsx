@@ -6,7 +6,7 @@ import { achievementsData } from '../data/portfolioData';
 import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 
 export default function Achievements() {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   return (
     <section id="achievements" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative">

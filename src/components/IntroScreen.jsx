@@ -1,35 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, FastForward, Sparkles, Terminal } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { PREMIUM_EASE, CINEMATIC_EASE } from '../hooks/useScrollAnimations';
 
 export default function IntroScreen({ onComplete }) {
   const [skipped, setSkipped] = useState(false);
-  const [videoError, setVideoError] = useState(false);
-  const videoRef = useRef(null);
 
   useEffect(() => {
-    // Check if intro has already been shown in this session or skipped via URL
-    const hasSeenIntro = sessionStorage.getItem('kunal_intro_viewed');
     const urlParams = new URLSearchParams(window.location.search);
-    if (hasSeenIntro || urlParams.get('skipIntro') === 'true' || window.location.hash) {
+    if (urlParams.get('skipIntro') === 'true' || window.location.hash) {
       onComplete();
       return;
     }
 
-    // Auto-complete after 3.8 seconds max if user doesn't interact
+    // Auto-complete after 3.2 seconds
     const timer = setTimeout(() => {
       handleFinish();
-    }, 4000);
+    }, 3200);
 
     return () => clearTimeout(timer);
   }, []);
 
   const handleFinish = () => {
-    sessionStorage.setItem('kunal_intro_viewed', 'true');
     setSkipped(true);
     setTimeout(() => {
       onComplete();
-    }, 500);
+    }, 600);
   };
 
   return (
@@ -37,93 +32,84 @@ export default function IntroScreen({ onComplete }) {
       {!skipped && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.05 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#07090e] text-white overflow-hidden"
+          exit={{ opacity: 0, scale: 1.02, filter: 'blur(4px)' }}
+          transition={{ duration: 0.7, ease: CINEMATIC_EASE }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#05070d] text-white overflow-hidden"
         >
-          {/* Subtle Ambient Video Background if available */}
-          {!videoError ? (
-            <video
-              ref={videoRef}
-              src="/assets/videos/intro.mp4"
-              autoPlay
-              muted
-              playsInline
-              onError={() => setVideoError(true)}
-              onEnded={handleFinish}
-              className="absolute inset-0 w-full h-full object-cover opacity-35 filter brightness-75 contrast-125"
-            />
-          ) : null}
-
-          {/* Radial Gradient Glows */}
-          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.18),rgba(255,255,255,0))]"></div>
-          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_60%_at_50%_120%,rgba(139,92,246,0.15),rgba(255,255,255,0))]"></div>
+          {/* Subtle Ambient Light Movement in Deep Navy / Black */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: [0.15, 0.35, 0.2], scale: [0.9, 1.15, 1] }}
+            transition={{ duration: 3.4, ease: 'easeInOut' }}
+            className="absolute w-[600px] h-[600px] bg-gradient-to-tr from-blue-700/20 via-sky-500/15 to-purple-600/10 blur-[140px] rounded-full pointer-events-none"
+          />
 
           {/* Central Animated Content */}
-          <div className="relative z-10 max-w-xl mx-auto px-6 text-center">
-            {/* Terminal tag pill */}
+          <div className="relative z-10 max-w-2xl mx-auto px-6 text-center space-y-4">
+            
+            {/* Identity Tag */}
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono mb-6"
+              transition={{ duration: 0.6, delay: 0.2, ease: PREMIUM_EASE }}
+              className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono tracking-widest uppercase"
             >
-              <Terminal className="w-3.5 h-3.5" />
-              <span>system.init(kunal.portfolio)</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+              <span>Computer Engineering Student</span>
             </motion.div>
 
-            {/* Main Greeting */}
+            {/* Main Reveal: HELLO, I'M KUNAL.
+                Animation:
+                - initially invisible (opacity 0)
+                - slight blur (blur 12px)
+                - scale 1.08
+                - gradually becomes sharp (blur 0px)
+                - scale reaches 1
+                - opacity reaches 1 */}
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-              className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 font-display"
+              initial={{ opacity: 0, scale: 1.08, filter: 'blur(12px)' }}
+              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+              transition={{ duration: 1.2, delay: 0.45, ease: CINEMATIC_EASE }}
+              className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-display text-white"
             >
-              HELLO, I'M <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">KUNAL</span>.
+              HELLO, I'M{' '}
+              <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">
+                KUNAL
+              </span>
+              <span className="text-blue-500">.</span>
             </motion.h1>
 
-            {/* Subtext */}
+            {/* Subtitle */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-slate-300 text-lg sm:text-xl font-light tracking-wide max-w-md mx-auto"
+              initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.8, delay: 1.2, ease: PREMIUM_EASE }}
+              className="text-slate-300 text-base sm:text-xl font-light tracking-wide max-w-md mx-auto"
             >
               I turn ideas into reality.
             </motion.p>
 
-            {/* Student Identity Tag */}
+            {/* Engineering Subtext */}
             <motion.p
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              className="text-slate-500 text-xs sm:text-sm font-mono mt-3 uppercase tracking-widest"
+              animate={{ opacity: 0.6 }}
+              transition={{ duration: 0.8, delay: 1.8 }}
+              className="text-slate-400 text-xs font-mono tracking-widest uppercase pt-2"
             >
-              Computer Engineering Student • PES MCOE Pune
+              PES Modern College of Engineering • Pune
             </motion.p>
 
-            {/* Loading progress bar */}
-            <div className="w-48 sm:w-64 h-1 bg-slate-800/80 rounded-full mx-auto mt-8 overflow-hidden border border-white/5">
-              <motion.div
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 3.5, ease: "easeInOut" }}
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-              />
-            </div>
           </div>
 
-          {/* Skip Button */}
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            onClick={handleFinish}
-            className="absolute bottom-8 right-8 z-20 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800/80 border border-white/10 backdrop-blur-md transition-all duration-200"
-          >
-            <span>Skip Intro</span>
-            <FastForward className="w-3.5 h-3.5 text-blue-400" />
-          </motion.button>
+          {/* Skip CTA */}
+          <div className="absolute bottom-8 right-8 z-20">
+            <button
+              onClick={handleFinish}
+              className="text-xs font-mono text-slate-500 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-white/5 hover:border-white/20"
+            >
+              Skip Intro →
+            </button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

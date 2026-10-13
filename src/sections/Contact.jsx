@@ -8,7 +8,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [copied, setCopied] = useState(false);
   const [sentNotice, setSentNotice] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -56,25 +56,34 @@ export default function Contact() {
 
           {/* Line 1: "HAVE AN IDEA?" starts slightly below viewport, moves upward */}
           <motion.h2
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 50 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 40 }}
             whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.75, delay: 0.1, ease: PREMIUM_EASE }}
-            className="text-3xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white"
+            className="text-2xl sm:text-4xl lg:text-5xl font-black font-display tracking-tight text-slate-300"
           >
             HAVE AN IDEA?
           </motion.h2>
 
-          {/* Line 2: "LET'S BUILD IT." appears with slight scale animation */}
-          <motion.h3
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
-            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.75, delay: 0.28, ease: PREMIUM_EASE }}
-            className="text-3xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight bg-gradient-to-r from-blue-400 via-sky-300 to-purple-400 bg-clip-text text-transparent"
-          >
-            LET'S BUILD IT.
-          </motion.h3>
+          {/* Line 2: "LET'S BUILD SOMETHING." - words reveal progressively with stagger and upward movement */}
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black font-display tracking-tight bg-gradient-to-r from-blue-400 via-sky-300 to-purple-400 bg-clip-text text-transparent flex flex-wrap justify-center gap-x-3 sm:gap-x-4">
+            {["LET'S", "BUILD", "SOMETHING."].map((word, wIdx) => (
+              <motion.span
+                key={wIdx}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 50, filter: 'blur(6px)' }}
+                whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.22 + wIdx * 0.14,
+                  ease: PREMIUM_EASE,
+                }}
+                className="inline-block"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </h2>
 
           <motion.p
             initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 15 }}

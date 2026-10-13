@@ -10,7 +10,7 @@ export default function SectionHeading({
   className = ''
 }) {
   const isCenter = align === 'center';
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   return (
     <motion.div
@@ -22,10 +22,10 @@ export default function SectionHeading({
     >
       {badge && (
         <motion.div
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
-          whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, filter: 'blur(4px)' }}
+          whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, filter: 'blur(0px)' }}
           viewport={{ once: true }}
-          transition={{ duration: 0.45, delay: 0.05, ease: PREMIUM_EASE }}
+          transition={{ duration: 0.5, delay: 0.05, ease: PREMIUM_EASE }}
           className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-mono font-medium uppercase tracking-wider mb-4 ${
             isCenter ? 'mx-auto' : ''
           }`}
@@ -36,10 +36,10 @@ export default function SectionHeading({
       )}
 
       <motion.h2
-        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 15 }}
-        whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 25, filter: 'blur(8px)' }}
+        whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
         viewport={{ once: true }}
-        transition={{ duration: 0.55, delay: 0.1, ease: PREMIUM_EASE }}
+        transition={{ duration: 0.7, delay: 0.1, ease: PREMIUM_EASE }}
         className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight font-display text-white"
       >
         {title}
@@ -47,11 +47,11 @@ export default function SectionHeading({
 
       {subtitle && (
         <motion.p
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
-          whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 15, filter: 'blur(6px)' }}
+          whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
           viewport={{ once: true }}
-          transition={{ duration: 0.55, delay: 0.18, ease: PREMIUM_EASE }}
-          className="mt-3 text-slate-400 text-sm sm:text-base leading-relaxed"
+          transition={{ duration: 0.7, delay: 0.2, ease: PREMIUM_EASE }}
+          className="mt-3 text-slate-400 text-sm sm:text-base leading-relaxed font-light"
         >
           {subtitle}
         </motion.p>

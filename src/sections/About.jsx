@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { Code2, Globe, Cpu, Users, GraduationCap, Award, Compass, Sparkles, BookOpen } from 'lucide-react';
 import SectionHeading from '../components/SectionHeading';
 import { personalInfo } from '../data/portfolioData';
@@ -32,10 +32,18 @@ function AnimatedStat({ value, label, helper, isNumeric, numValue, decimals = 0,
 }
 
 export default function About() {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
+  const sectionRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start']
+  });
+
+  const imageParallax = useTransform(scrollYProgress, [0, 1], [-30, 30]);
 
   return (
-    <section id="about" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <section ref={sectionRef} id="about" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <SectionHeading
           badge="Background & Identity"
@@ -46,12 +54,13 @@ export default function About() {
         {/* Split Layout: LEFT Portrait, RIGHT Text */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
-          {/* LEFT: Portrait (translateX(-100px) -> 0, opacity 0 -> 1) */}
+          {/* LEFT: Portrait (translateX(-120px) -> 0, opacity 0 -> 1, scale 0.92 -> 1, blur 8px -> 0) */}
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -100 }}
-            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -120, scale: 0.92, filter: 'blur(8px)' }}
+            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.85, ease: PREMIUM_EASE }}
+            transition={{ duration: 0.9, ease: PREMIUM_EASE }}
+            style={shouldReduceMotion ? {} : { y: imageParallax }}
             className="lg:col-span-5"
           >
             <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#101726] to-[#07090e] p-3 shadow-2xl group">
@@ -75,12 +84,12 @@ export default function About() {
             </div>
           </motion.div>
 
-          {/* RIGHT: Text (translateX(100px) -> 0, opacity 0 -> 1) */}
+          {/* RIGHT: Text (translateX(120px) -> 0, opacity 0 -> 1) */}
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 100 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 120 }}
             whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.85, delay: 0.1, ease: PREMIUM_EASE }}
+            transition={{ duration: 0.9, delay: 0.1, ease: PREMIUM_EASE }}
             className="lg:col-span-7 space-y-6"
           >
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#0e1424] to-[#07090e] border border-white/10 shadow-xl space-y-4">

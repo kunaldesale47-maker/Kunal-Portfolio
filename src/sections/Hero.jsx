@@ -1,13 +1,70 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { FileText, Github, Linkedin, Mail, Sparkles, Terminal, ChevronRight } from 'lucide-react';
+import MagneticButton from '../components/animations/MagneticButton';
 import { personalInfo } from '../data/portfolioData';
 import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 
 export default function Hero() {
-  const [videoError, setVideoError] = useState(false);
   const containerRef = useRef(null);
-  const shouldReduceMotion = useReducedMotion();
+  const videoRef = useRef(null);
+  const [videoError, setVideoError] = useState(false);
+  const shouldReduceMotion = false;
+
+  // Guarantee seamless and continuous video playback across browsers
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Browser audio/autoplay compliance
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    const playVideo = () => {
+      const promise = video.play();
+      if (promise !== undefined) {
+        promise.catch(() => {
+          // If browser autoplay policy held it, resume on first interaction
+          const resumeOnInteraction = () => {
+            video.play().catch(() => {});
+            ['click', 'touchstart', 'scroll', 'keydown'].forEach((evt) => {
+              window.removeEventListener(evt, resumeOnInteraction);
+            });
+          };
+          ['click', 'touchstart', 'scroll', 'keydown'].forEach((evt) => {
+            window.addEventListener(evt, resumeOnInteraction, { once: true, passive: true });
+          });
+        });
+      }
+    };
+
+    playVideo();
+
+    // Fallback: If browser loop attribute stalls or stops at video end, immediately restart
+    const handleEnded = () => {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    };
+
+    // Keep playing when tab or window regains focus
+    const handleVisibility = () => {
+      if (!document.hidden && video.paused) {
+        video.play().catch(() => {});
+      }
+    };
+
+    video.addEventListener('ended', handleEnded);
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleVisibility);
+
+    return () => {
+      video.removeEventListener('ended', handleEnded);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleVisibility);
+    };
+  }, []);
 
   // Scroll tracking across Hero section
   const { scrollYProgress } = useScroll({
@@ -45,11 +102,19 @@ export default function Hero() {
           className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
         >
           <video
+            ref={videoRef}
             src={personalInfo.heroVideo}
             autoPlay
             loop
             muted
             playsInline
+            preload="auto"
+            disablePictureInPicture
+            disableRemotePlayback
+            onEnded={(e) => {
+              e.currentTarget.currentTime = 0;
+              e.currentTarget.play().catch(() => {});
+            }}
             onError={() => setVideoError(true)}
             className="w-full h-full object-cover opacity-40 sm:opacity-50 filter contrast-115 brightness-95 scale-105"
           />
@@ -90,12 +155,12 @@ export default function Hero() {
               <span>Computer Engineering Student • SPPU</span>
             </motion.div>
 
-            {/* Main Heading: Initial translateY(50px) -> 0, opacity 0 -> 1 */}
+            {/* Main Heading: Initial move from bottom, blur -> sharp, opacity 0 -> 1, slight scale 1.08 -> 1 */}
             <div className="space-y-2">
               <motion.h1
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 50 }}
-                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.75, delay: 0.2, ease: PREMIUM_EASE }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 55, scale: 1.08, filter: 'blur(10px)' }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.85, delay: 0.2, ease: PREMIUM_EASE }}
                 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight font-display text-white"
               >
                 HELLO, I'M{' '}
@@ -105,22 +170,22 @@ export default function Hero() {
                 <span className="text-blue-500">.</span>
               </motion.h1>
 
-              {/* Subtitle: Initial translateY(30px) -> 0, opacity 0 -> 1 */}
+              {/* Subtitle: Reveal slightly later, slide from left, blur -> sharp */}
               <motion.h2
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
-                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.32, ease: PREMIUM_EASE }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -60, filter: 'blur(6px)' }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.75, delay: 0.38, ease: PREMIUM_EASE }}
                 className="text-lg sm:text-2xl md:text-3xl font-semibold text-slate-300 font-display flex items-center justify-center lg:justify-start gap-2"
               >
                 <span>Computer Engineering Student</span>
               </motion.h2>
             </div>
 
-            {/* Supporting Text & Positioning */}
+            {/* Description: Reveal from bottom */}
             <motion.div
-              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
-              animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.42, ease: PREMIUM_EASE }}
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 35, filter: 'blur(4px)' }}
+              animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.75, delay: 0.5, ease: PREMIUM_EASE }}
               className="space-y-3"
             >
               <p className="text-blue-300/90 font-medium text-base sm:text-lg">
@@ -135,37 +200,41 @@ export default function Hero() {
             <motion.div
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 15 }}
               animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5, ease: PREMIUM_EASE }}
+              transition={{ duration: 0.6, delay: 0.6, ease: PREMIUM_EASE }}
               className="text-xs sm:text-sm font-mono text-blue-400/90 flex items-center justify-center lg:justify-start gap-2"
             >
               <Terminal className="w-4 h-4 text-purple-400" />
               <span>&ldquo;{personalInfo.tagline}&rdquo;</span>
             </motion.div>
 
-            {/* Buttons: Initial translateY(20px) -> 0 */}
+            {/* Buttons: Staggered entrance with Magnetic hover */}
             <motion.div
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
               animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.58, ease: PREMIUM_EASE }}
+              transition={{ duration: 0.65, delay: 0.68, ease: PREMIUM_EASE }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2"
             >
-              <a
-                href="#projects"
-                className="w-full sm:w-auto justify-center group relative inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-sky-400 text-white font-medium text-sm shadow-[0_0_25px_rgba(59,130,246,0.35)] hover:shadow-[0_0_35px_rgba(59,130,246,0.5)] transition-all duration-300"
-              >
-                <span>EXPLORE PROJECTS</span>
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              <MagneticButton strength={0.25}>
+                <a
+                  href="#projects"
+                  className="w-full sm:w-auto justify-center group relative inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-sky-400 text-white font-medium text-sm shadow-[0_0_25px_rgba(59,130,246,0.35)] hover:shadow-[0_0_35px_rgba(59,130,246,0.5)] transition-all duration-300"
+                >
+                  <span>EXPLORE PROJECTS</span>
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </MagneticButton>
 
-              <a
-                href={personalInfo.resumePdf}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto justify-center inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border border-white/10 hover:border-blue-500/40 font-medium text-sm transition-all duration-300"
-              >
-                <FileText className="w-4 h-4 text-blue-400" />
-                <span>VIEW RESUME</span>
-              </a>
+              <MagneticButton strength={0.25}>
+                <a
+                  href={personalInfo.resumePdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto justify-center inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border border-white/10 hover:border-blue-500/40 font-medium text-sm transition-all duration-300"
+                >
+                  <FileText className="w-4 h-4 text-blue-400" />
+                  <span>VIEW RESUME</span>
+                </a>
+              </MagneticButton>
             </motion.div>
 
             {/* Social Icons Bar */}

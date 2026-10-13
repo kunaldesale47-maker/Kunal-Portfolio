@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, FileText, ExternalLink, Download } from 'lucide-react';
+import MagneticButton from './animations/MagneticButton';
 import { personalInfo } from '../data/portfolioData';
 
 const navLinks = [
@@ -97,18 +98,20 @@ export default function Navbar() {
               })}
             </nav>
 
-            {/* Desktop CTA: Resume button */}
+            {/* Desktop CTA: Resume button with magnetic hover */}
             <div className="hidden lg:flex items-center gap-3">
-              <a
-                href={personalInfo.resumePdf}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium tracking-wide bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 text-blue-300 border border-blue-500/30 hover:border-blue-400/50 shadow-sm transition-all duration-200"
-              >
-                <FileText className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span>Resume</span>
-                <ExternalLink className="w-3 h-3 text-slate-400 opacity-60 group-hover:opacity-100 transition-opacity" />
-              </a>
+              <MagneticButton strength={0.3}>
+                <a
+                  href={personalInfo.resumePdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium tracking-wide bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 text-blue-300 border border-blue-500/30 hover:border-blue-400/50 shadow-sm transition-all duration-200"
+                >
+                  <FileText className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
+                  <span>Resume</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </a>
+              </MagneticButton>
             </div>
 
             {/* Mobile Hamburger Button */}

@@ -4,7 +4,7 @@ import { ArrowUpRight, Github, ExternalLink, Eye, Sparkles, Terminal } from 'luc
 import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 
 export default function ProjectCard({ project, onSelect, index = 0, isFeatured = false }) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   return (
     <motion.article

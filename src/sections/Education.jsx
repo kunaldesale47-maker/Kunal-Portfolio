@@ -6,7 +6,7 @@ import { educationData } from '../data/portfolioData';
 import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 
 export default function Education() {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   return (
     <section id="education" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative bg-[#07090e]/60">

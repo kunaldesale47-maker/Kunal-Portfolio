@@ -4,7 +4,7 @@ import { Maximize2 } from 'lucide-react';
 import { PREMIUM_EASE } from '../hooks/useScrollAnimations';
 
 export default function GalleryCard({ item, onClick, index = 0 }) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   return (
     <motion.div

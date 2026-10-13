@@ -78,7 +78,7 @@ const getSkillEntrance = (skillName, idx, shouldReduceMotion) => {
 
 export default function Skills() {
   const [activeCategory, setActiveCategory] = useState('all');
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   return (
     <section id="skills" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative bg-[#07090e]/60">

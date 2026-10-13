@@ -33,7 +33,7 @@ export default function Gallery() {
   const [filter, setFilter] = useState('All');
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const containerRef = useRef(null);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = false;
 
   const categories = ['All', 'Hackathons', 'College', 'Projects', 'Presentations'];
 

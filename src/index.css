@@ -1,3 +1,4 @@
+@import 'lenis/dist/lenis.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +9,7 @@
   }
   
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
@@ -81,13 +82,4 @@
 .bg-grid-pattern {
   background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 32px 32px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }
